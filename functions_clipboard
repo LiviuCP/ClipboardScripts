@@ -1,73 +1,77 @@
 # This file contains functions used for moving(cutting), copying and pasting files and directories from one folder to another
-
+#
+# GLOBAL VARIABLES
+#
+clipboardScriptDir=`pwd`;
+# file which is used by functions to build and execute the paste command
+# it also ensures the paste operations are persistent, they can also be performed if the system is rebooted
+commandFile=$clipboardScriptDir/.pasteCommand;
+#
 function mvit {
-    param="/Users/Liviu/.mvcp_param"; #parameters file (created in the home directory of the user running the script)
     if [[ -z $1 ]]; then #if first script parameter is not set or has 0 characters
 	operation='mv -i'; #write mv -i (move command, option -i for interactive - ask before overriding files) to variable $operation
     elif [[ $1 == "-o" ]]; then #if parameter "-o" (override) was entered
 	operation='mv'; #write mv to variable $operation (move without interactive mode)
     else 
 	echo 'Wrong command option. Please try again.';
-	> "$param"; #flush parameters file 
+	> "$commandFile"; #flush parameters file
 	return 1; #error, end of script 
     fi 
     echo 'Enter keyword: '; #request search keyword from user
     read keyword;
     if [[ -z $keyword ]]; then #if no keyword entered 
 	echo 'No input. Please try again';
-	> "$param"; #flush parameters file 
+	> "$commandFile"; #flush parameters file
 	return 1; #error, end of script 
     fi
 #
-    echo $operation > "$param"; #write the move command to the parameters file 
-    echo `pwd` >> "$param"; #write the path of the current directory on the second line of the parameters file
-    echo "$keyword" >> "$param"; #write the keyword on the third line of the parameters file 
+    echo $operation > "$commandFile"; #write the move command to the parameters file
+    echo `pwd` >> "$commandFile"; #write the path of the current directory on the second line of the parameters file
+    echo "$keyword" >> "$commandFile"; #write the keyword on the third line of the parameters file
     return 0; 
 }
 
 function cpit {
-    param="/Users/Liviu/.mvcp_param"; #parameters file (created in the home directory of the user running the script)
     if [[ -z $1 ]]; then #if first script parameter is not set or has 0 characters
 	operation='cp -ir'; #write cp -ir (copy command, option -i for interactive - ask before overriding files, option -r for directories) to variable $operation
     elif [[ $1 == "-o" ]]; then #if parameter "-o" (override) was entered
 	operation='cp -r'; #write cp -r to variable $operation (copy without interactive mode) 
     else 
 	echo 'Wrong command option. Please try again.';
-	> "$param"; #flush parameters file 
+	> "$commandFile"; #flush parameters file
 	return 1; #error, end of script 
     fi 
     echo 'Enter keyword: '; #request search keyword from user
     read keyword;
     if [[ -z $keyword ]]; then #if no keyword entered 
 	echo 'No input. Please try again';
-	> "$param"; #flush parameters file 
+	> "$commandFile"; #flush parameters file
 	return 1; #error, end of script 
     fi
 #
-    echo $operation > "$param"; #write the copy command to the parameters file 
-    echo `pwd` >> "$param"; #write the path of the current directory on the second line of the parameters file
-    echo "$keyword" >> "$param"; #write the keyword on the third line of the parameters file 
+    echo $operation > "$commandFile"; #write the copy command to the parameters file
+    echo `pwd` >> "$commandFile"; #write the path of the current directory on the second line of the parameters file
+    echo "$keyword" >> "$commandFile"; #write the keyword on the third line of the parameters file
     return 0; 
 }
 
 function psit {
-    param="/Users/Liviu/.mvcp_param"; #parameters file (created in the home directory of the user running the script) 
-    if [[ ! -f "$param" ]]; then #if parameters file does not exist
-	echo "Fatal error! Parameters file $param does not exist."; 
+    if [[ ! -f "$commandFile" ]]; then #if parameters file does not exist
+	echo "Fatal error! Parameters file $commandFile does not exist.";
 	return 1; #error, end of script
     fi 
-    operation=`sed -n '1p' $param`; #first line of the parameters file, type of operation (move/copy) 
-    source_dir=`sed -n '2p' $param`; #second line of the parameters file, source directory (from which files/directories are moved/copied)
+    operation=`sed -n '1p' $commandFile`; #first line of the parameters file, type of operation (move/copy)
+    source_dir=`sed -n '2p' $commandFile`; #second line of the parameters file, source directory (from which files/directories are moved/copied)
     dest_dir=`pwd`; #destination directory (where files are moved/copied; this is the current directory) 
-    keyword=`sed -n '3p' $param`; #third line of the parameters file (keyword) 
+    keyword=`sed -n '3p' $commandFile`; #third line of the parameters file (keyword)
     if [[ ! -z $1 ]]; then #if first script parameter exists 
 	if [[ $1 == '-f' ]]; then # option -f (flush)
-	    > "$param"; #flush parameters file 
+	    > "$commandFile"; #flush parameters file
 	    echo 'Clipboard erased!';
 	    return 0; #exit script, no action required anymore
 	elif [[ $1 == '-d' ]]; then #option -d (display)
 	    echo; 
-	    cat "$param"; #display parameters file contents
+	    cat "$commandFile"; #display parameters file contents
 	    echo; 
 	    return 0; #exit script, no action required anymore
 	else 
@@ -83,20 +87,20 @@ function psit {
     elif [[ $operation == 'cp -ir' ]] || [[ $operation == 'cp -r' ]]; then #if operation is copy (interactive or not) 
 	mvitems='no'; #items will be copied
     else
-	echo "Incorrect entry in $param, file will be flushed"; #error, no valid entry on the first row of the parameters file
-	> "$param"; #reset parameters file 
+	echo "Incorrect entry in $commandFile, file will be flushed"; #error, no valid entry on the first row of the parameters file
+	> "$commandFile"; #reset parameters file
 	return 1; #end of script 
     fi
 #
     if [[ ! -d "$source_dir" ]]; then #if the source directory does not exist (or is not a directory)
 	echo "Invalid source directory $source_dir"; #error
-	> "$param"; #flush parameters file 
+	> "$commandFile"; #flush parameters file
 	return 1; #end of script 
     fi
 #
     if [[ -z $keyword ]]; then #if keyword is missing (third row of parameters file is empty) 
 	echo 'No keyword found'; #error
-	> "$param"; #flush parameters file
+	> "$commandFile"; #flush parameters file
 	return 1; #end of script
     fi
 #
@@ -113,7 +117,7 @@ function psit {
     cd "$source_dir"; #cd to source directory ...
     eval "$command"; #execute the command 
     if [[ $? != 0 ]] || [[ $mvitems == 'yes' ]]; then #if command not successfully executed or if it was a move (not copy) operation
-	> "$param"; #parameters file is flushed (no sense to use it again if operation was unsuccessful; cannot use it to move items again as they can only be moved once from the source directory) 
+	> "$commandFile"; #parameters file is flushed (no sense to use it again if operation was unsuccessful; cannot use it to move items again as they can only be moved once from the source directory)
     fi
     cd - > /dev/null; #...and then back (to destination directory); dev/null for suppressing output
     return 0; 
