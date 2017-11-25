@@ -124,7 +124,7 @@ function psit {
 	return 1;
     fi 
     # if the paste command components are all correct, build the paste command and execute it from the source directory
-    command="$operation $keyword $destDir";
+    command="$operation $keyword \"$destDir\"";
     cd "$sourceDir";
     eval "$command";
     # flush the command file if the paste operation was a move operation or the paste operation was not successful
