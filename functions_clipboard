@@ -7,27 +7,30 @@ clipboardScriptDir=`pwd`;
 # it also ensures the paste operations are persistent, they can also be performed if the system is rebooted
 commandFile=$clipboardScriptDir/.pasteCommand;
 #
+# This function emulates a 'CUT' operation
 function mvit {
-    if [[ -z $1 ]]; then #if first script parameter is not set or has 0 characters
-	operation='mv -i'; #write mv -i (move command, option -i for interactive - ask before overriding files) to variable $operation
-    elif [[ $1 == "-o" ]]; then #if parameter "-o" (override) was entered
-	operation='mv'; #write mv to variable $operation (move without interactive mode)
+    # decide if the moved files will override the existing ones or an interactive mode will be used (user decides if and which files are overridden or not)
+    if [[ -z $1 ]]; then
+	operation='mv -i';
+    elif [[ $1 == "-o" ]]; then
+	operation='mv';
     else 
 	echo 'Wrong command option. Please try again.';
-	> "$commandFile"; #flush parameters file
-	return 1; #error, end of script 
+	> "$commandFile";
+	return 1;
     fi 
-    echo 'Enter keyword: '; #request search keyword from user
+    # request (mandatory) keyword from user (keyword used to determine the files/directories to be moved)
+    echo 'Enter keyword: ';
     read keyword;
-    if [[ -z $keyword ]]; then #if no keyword entered 
+    if [[ -z $keyword ]]; then
 	echo 'No input. Please try again';
-	> "$commandFile"; #flush parameters file
-	return 1; #error, end of script 
+	> "$commandFile";
+	return 1;
     fi
-#
-    echo $operation > "$commandFile"; #write the move command to the parameters file
-    echo `pwd` >> "$commandFile"; #write the path of the current directory on the second line of the parameters file
-    echo "$keyword" >> "$commandFile"; #write the keyword on the third line of the parameters file
+    # build the paste command that will actually move the required files to the chosen directory (when the paste function is called)
+    echo $operation > "$commandFile";
+    echo `pwd` >> "$commandFile";
+    echo "$keyword" >> "$commandFile";
     return 0; 
 }
 
