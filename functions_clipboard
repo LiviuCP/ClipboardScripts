@@ -68,8 +68,8 @@ function psit {
     fi 
     # read the command components and build the paste command
     operation=`sed -n '1p' $commandFile`;
-    source_dir=`sed -n '2p' $commandFile`;
-    dest_dir=`pwd`;
+    sourceDir=`sed -n '2p' $commandFile`;
+    destDir=`pwd`;
     keyword=`sed -n '3p' $commandFile`;
     # complementary actions that can be fulfilled by the function that don't involve moving/copying files (to be implemented in separate functions)
     if [[ ! -z $1 ]]; then
@@ -94,17 +94,17 @@ function psit {
 	echo 'No move/copy command initiated. Clipboard empty.'; 
 	return 1;
     elif [[ $operation == 'mv -i' ]] || [[ $operation == 'mv' ]]; then
-	mvitems='yes';
+	moveItems='yes';
     elif [[ $operation == 'cp -ir' ]] || [[ $operation == 'cp -r' ]]; then
-	mvitems='no';
+	moveItems='no';
     else
 	echo "Incorrect entry in $commandFile, file will be flushed";
 	> "$commandFile";
 	return 1;
     fi
     # check that the source directory is valid
-    if [[ ! -d "$source_dir" ]]; then
-	echo "Invalid source directory $source_dir";
+    if [[ ! -d "$sourceDir" ]]; then
+	echo "Invalid source directory $sourceDir";
 	> "$commandFile";
 	return 1;
     fi
@@ -115,8 +115,8 @@ function psit {
 	return 1;
     fi
     # ensure the source and destination directory are NOT the same
-    if [[ "$source_dir" == "$dest_dir" ]]; then
-	if [[ $mvitems == 'yes' ]]; then
+    if [[ "$sourceDir" == "$destDir" ]]; then
+	if [[ $moveItems == 'yes' ]]; then
 	    echo 'Cannot move. Source and destination directory are the same.'; 
 	else
 	    echo 'Cannot copy. Source and destination directory are the same.'; 
@@ -124,11 +124,11 @@ function psit {
 	return 1;
     fi 
     # if the paste command components are all correct, build the paste command and execute it from the source directory
-    command="$operation $keyword $dest_dir";
-    cd "$source_dir";
+    command="$operation $keyword $destDir";
+    cd "$sourceDir";
     eval "$command";
     # flush the command file if the paste operation was a move operation or the paste operation was not successful
-    if [[ $? != 0 ]] || [[ $mvitems == 'yes' ]]; then
+    if [[ $? != 0 ]] || [[ $moveItems == 'yes' ]]; then
 	> "$commandFile";
     fi
     # return to destination directory (from which the function was executed)
