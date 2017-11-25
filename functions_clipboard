@@ -59,71 +59,79 @@ function cpit {
     echo "$keyword" >> "$commandFile";
     return 0; 
 }
-
+# This function emulates a 'PASTE' operation
 function psit {
-    if [[ ! -f "$commandFile" ]]; then #if parameters file does not exist
+    # check that the file that contains the components of the paste command exists
+    if [[ ! -f "$commandFile" ]]; then
 	echo "Fatal error! Parameters file $commandFile does not exist.";
-	return 1; #error, end of script
+	return 1;
     fi 
-    operation=`sed -n '1p' $commandFile`; #first line of the parameters file, type of operation (move/copy)
-    source_dir=`sed -n '2p' $commandFile`; #second line of the parameters file, source directory (from which files/directories are moved/copied)
-    dest_dir=`pwd`; #destination directory (where files are moved/copied; this is the current directory) 
-    keyword=`sed -n '3p' $commandFile`; #third line of the parameters file (keyword)
-    if [[ ! -z $1 ]]; then #if first script parameter exists 
-	if [[ $1 == '-f' ]]; then # option -f (flush)
-	    > "$commandFile"; #flush parameters file
+    # read the command components and build the paste command
+    operation=`sed -n '1p' $commandFile`;
+    source_dir=`sed -n '2p' $commandFile`;
+    dest_dir=`pwd`;
+    keyword=`sed -n '3p' $commandFile`;
+    # complementary actions that can be fulfilled by the function that don't involve moving/copying files (to be implemented in separate functions)
+    if [[ ! -z $1 ]]; then
+	# erase the paste command
+	if [[ $1 == '-f' ]]; then
+	    > "$commandFile";
 	    echo 'Clipboard erased!';
-	    return 0; #exit script, no action required anymore
-	elif [[ $1 == '-d' ]]; then #option -d (display)
+	    return 0;
+	# display the paste command
+	elif [[ $1 == '-d' ]]; then
 	    echo; 
-	    cat "$commandFile"; #display parameters file contents
+	    cat "$commandFile";
 	    echo; 
-	    return 0; #exit script, no action required anymore
+	    return 0;
 	else 
 	    echo 'Incorrect script option. Please try again'; 
-	    return 1; #error, end of script
+	    return 1;
 	fi
     fi 
-    if [[ -z $operation ]]; then #if first row of the parameters file is empty (meaning no copy/move was initiated) 
+    # decide on the type of "paste" operation (move/copy)
+    if [[ -z $operation ]]; then
 	echo 'No move/copy command initiated. Clipboard empty.'; 
-	return 1; #error, end of script
-    elif [[ $operation == 'mv -i' ]] || [[ $operation == 'mv' ]]; then #if operation is move (interactive or not) 
-	mvitems='yes'; #items will be moved
-    elif [[ $operation == 'cp -ir' ]] || [[ $operation == 'cp -r' ]]; then #if operation is copy (interactive or not) 
-	mvitems='no'; #items will be copied
+	return 1;
+    elif [[ $operation == 'mv -i' ]] || [[ $operation == 'mv' ]]; then
+	mvitems='yes';
+    elif [[ $operation == 'cp -ir' ]] || [[ $operation == 'cp -r' ]]; then
+	mvitems='no';
     else
-	echo "Incorrect entry in $commandFile, file will be flushed"; #error, no valid entry on the first row of the parameters file
-	> "$commandFile"; #reset parameters file
-	return 1; #end of script 
+	echo "Incorrect entry in $commandFile, file will be flushed";
+	> "$commandFile";
+	return 1;
     fi
-#
-    if [[ ! -d "$source_dir" ]]; then #if the source directory does not exist (or is not a directory)
-	echo "Invalid source directory $source_dir"; #error
-	> "$commandFile"; #flush parameters file
-	return 1; #end of script 
+    # check that the source directory is valid
+    if [[ ! -d "$source_dir" ]]; then
+	echo "Invalid source directory $source_dir";
+	> "$commandFile";
+	return 1;
     fi
-#
-    if [[ -z $keyword ]]; then #if keyword is missing (third row of parameters file is empty) 
-	echo 'No keyword found'; #error
-	> "$commandFile"; #flush parameters file
-	return 1; #end of script
+    # check that the keyword used for determining the files to be moved/copied exists
+    if [[ -z $keyword ]]; then
+	echo 'No keyword found';
+	> "$commandFile";
+	return 1;
     fi
-#
-    if [[ "$source_dir" == "$dest_dir" ]]; then #if source and destination directory match, an error will be displayed and the script will be aborted (parameters file will not be flushed, so user can apply paste.sh again when in another directory) 
-	if [[ $mvitems == 'yes' ]]; then #error message for move operation
+    # ensure the source and destination directory are NOT the same
+    if [[ "$source_dir" == "$dest_dir" ]]; then
+	if [[ $mvitems == 'yes' ]]; then
 	    echo 'Cannot move. Source and destination directory are the same.'; 
-	else #error message for copy operation
+	else
 	    echo 'Cannot copy. Source and destination directory are the same.'; 
 	fi
-	return 1; #error, end of script
+	return 1;
     fi 
-#
-    command="$operation $keyword $dest_dir"; #build the move/copy command 
-    cd "$source_dir"; #cd to source directory ...
-    eval "$command"; #execute the command 
-    if [[ $? != 0 ]] || [[ $mvitems == 'yes' ]]; then #if command not successfully executed or if it was a move (not copy) operation
-	> "$commandFile"; #parameters file is flushed (no sense to use it again if operation was unsuccessful; cannot use it to move items again as they can only be moved once from the source directory)
+    # if the paste command components are all correct, build the paste command and execute it from the source directory
+    command="$operation $keyword $dest_dir";
+    cd "$source_dir";
+    eval "$command";
+    # flush the command file if the paste operation was a move operation or the paste operation was not successful
+    if [[ $? != 0 ]] || [[ $mvitems == 'yes' ]]; then
+	> "$commandFile";
     fi
-    cd - > /dev/null; #...and then back (to destination directory); dev/null for suppressing output
+    # return to destination directory (from which the function was executed)
+    cd - > /dev/null;
     return 0; 
 }
