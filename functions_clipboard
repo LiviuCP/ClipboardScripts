@@ -7,19 +7,39 @@ clipboardScriptDir=`pwd`;
 # it also ensures the paste operations are persistent, they can also be performed if the system is rebooted
 commandFile=$clipboardScriptDir/.pasteCommand;
 #
-# This function emulates a 'CUT' operation
-function mvit {
-    # decide if the moved files will override the existing ones or an interactive mode will be used (user decides if and which files are overridden or not)
-    if [[ -z $1 ]]; then
-	operation='mv -i';
-    elif [[ $1 == "-o" ]]; then
-	operation='mv';
-    else 
-	echo 'Wrong command option. Please try again.';
+# This function creates the command for the move/copy operation
+function clipboard {
+    # Step 1: check arguments, decide the which operation will be performed (move/copy/override/interactive)
+    #
+    # second argument can only have value -o (override files automatically when pasting) or no value
+    if [[ ! -z $2 ]] && [[ '-o' != $2 ]]; then
+	echo "Invalid second argument $2";
 	> "$commandFile";
 	return 1;
-    fi 
-    # request (mandatory) keyword from user (keyword used to determine the files/directories to be moved)
+    fi
+    # first argument specifies the operation type (move/copy), no other value allowed
+    if [[ -z $1 ]]; then
+	echo 'No argument entered to specify the requested operation (move/copy)';
+	echo 'Valid arguments: [--move] [--copy]';
+	return 1;
+    elif [[ '--move' == $1 ]]; then
+	if [[ -z $2 ]]; then
+	    operation='mv -i';
+	elif [[ "-o" == $1 ]]; then
+	    operation='mv';
+	fi
+    elif [[ '--copy' == $1 ]]; then
+	if [[ -z $2 ]]; then
+	    operation='cp -ir';
+	elif [[ "-o" == $1 ]]; then
+	    operation='cp -r';
+	fi
+    else
+	echo "Invalid first argument $1, no such operation";
+	return 1;
+    fi
+    #
+    # Step 2: request (mandatory) keyword from user (keyword used to determine the files/directories to be moved/copied)
     echo 'Enter keyword: ';
     read keyword;
     if [[ -z $keyword ]]; then
@@ -27,33 +47,8 @@ function mvit {
 	> "$commandFile";
 	return 1;
     fi
-    # build the paste command that will actually move the required files to the chosen directory (when the paste function is called)
-    echo $operation > "$commandFile";
-    echo `pwd` >> "$commandFile";
-    echo "$keyword" >> "$commandFile";
-    return 0; 
-}
-# This function emulates a 'COPY' operation
-function cpit {
-    # decide if the copied files will override the existing ones or an interactive mode will be used (user decides if and which files are overridden or not)
-    if [[ -z $1 ]]; then
-	operation='cp -ir';
-    elif [[ $1 == "-o" ]]; then
-	operation='cp -r';
-    else 
-	echo 'Wrong command option. Please try again.';
-	> "$commandFile";
-	return 1;
-    fi 
-    # request (mandatory) keyword from user (keyword used to determine the files/directories to be copied)
-    echo 'Enter keyword: ';
-    read keyword;
-    if [[ -z $keyword ]]; then
-	echo 'No input. Please try again';
-	> "$commandFile";
-	return 1;
-    fi
-    # build the paste command that will actually copy the required files to the chosen directory (when the paste function is called)
+    #
+    # Step 3: build the paste command that will actually move the required files to the chosen directory (when the paste function is called)
     echo $operation > "$commandFile";
     echo `pwd` >> "$commandFile";
     echo "$keyword" >> "$commandFile";
