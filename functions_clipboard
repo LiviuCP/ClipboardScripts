@@ -66,24 +66,6 @@ function psit {
     sourceDir=`sed -n '2p' $commandFile`;
     destDir=`pwd`;
     keyword=`sed -n '3p' $commandFile`;
-    # complementary actions that can be fulfilled by the function that don't involve moving/copying files (to be implemented in separate functions)
-    if [[ ! -z $1 ]]; then
-	# erase the paste command
-	if [[ $1 == '-f' ]]; then
-	    > "$commandFile";
-	    echo 'Clipboard erased!';
-	    return 0;
-	# display the paste command
-	elif [[ $1 == '-d' ]]; then
-	    echo; 
-	    cat "$commandFile";
-	    echo; 
-	    return 0;
-	else 
-	    echo 'Incorrect script option. Please try again'; 
-	    return 1;
-	fi
-    fi 
     # decide on the type of "paste" operation (move/copy)
     if [[ -z $operation ]]; then
 	echo 'No move/copy command initiated. Clipboard empty.'; 
@@ -129,4 +111,19 @@ function psit {
     # return to destination directory (from which the function was executed)
     cd - > /dev/null;
     return 0; 
+}
+# this function empties the clipboard
+function emptyClipboard {
+    > "$commandFile";
+    echo 'Clipboard erased!';
+    return 0;
+}
+# this function displays the clipboard
+function displayClipboard {
+    if [[ ! -s "$commandFile" ]]; then
+	echo 'The clipboard is empty!';
+    else
+	cat "$commandFile";
+    fi
+    return 0;
 }
