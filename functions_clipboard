@@ -113,7 +113,7 @@ function psit {
     eval "$command";
     status=$?;
     # provide status of command execution and erase the content of the command file if required
-    if [[ 0 == $status ]]; then
+    if [[ 0 -eq $status ]]; then
 	echo "Finished the $action operation";
     else
 	echo "The $action operation finished with errors or user chose to override only part of the content";
