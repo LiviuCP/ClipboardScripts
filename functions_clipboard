@@ -145,7 +145,12 @@ function displayClipboard {
     if [[ ! -s "$commandFile" ]]; then
 	echo 'The clipboard is empty!';
     else
-	cat "$commandFile";
+	firstLine=`sed '1q;d' "$commandFile"`;
+	secondLine=`sed '2q;d' "$commandFile"`;
+	thirdLine=`sed '3q;d' "$commandFile"`;
+	echo 'The paste command is:';
+	echo "$firstLine $secondLine/$thirdLine [destination directory]";
+        echo 'The user should cd to the chosen destination directory before running the paste function';
     fi
     return 0;
 }
@@ -156,11 +161,11 @@ function clipboardHelp {
     echo;
     echo '1. Please run the clipboard function from the directory you wish to move or copy files from';
     echo;
-    echo '   Enter as first argument:';
+    echo '   Enter as first argument (mandatory):';
     echo '   [--move]: if you would like to move files/folders to another directory';
     echo '   [--copy]: if you would like to copy files/folders to another directory';
     echo;
-    echo '   Enter as second argument:';
+    echo '   Enter as second argument (optional):';
     echo '   [no argument]: if you would like to be prompted when overriding existing files';
     echo '   [-o]: if you would like to override exiting files without being prompted';
     echo;
