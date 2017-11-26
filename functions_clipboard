@@ -1,4 +1,5 @@
 # This file contains functions used for moving(cutting), copying and pasting files and directories from one folder to another
+# Please check the README file for more details
 #
 # GLOBAL VARIABLES
 #
@@ -6,6 +7,8 @@ clipboardScriptDir=`pwd`;
 # file which is used by functions to build and execute the paste command
 # it also ensures the paste operations are persistent, they can also be performed if the system is rebooted
 commandFile=$clipboardScriptDir/.pasteCommand;
+#
+# FUNCTIONS
 #
 # This function creates the command for the move/copy operation
 function clipboard {
@@ -60,7 +63,7 @@ function clipboard {
     return 0; 
 }
 # This function emulates a 'PASTE' operation
-function psit {
+function paste {
     # check that the file that contains the components of the paste command exists
     if [[ ! -f "$commandFile" ]]; then
 	echo "Parameters file $commandFile does not exist";
