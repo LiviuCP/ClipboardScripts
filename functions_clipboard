@@ -74,9 +74,9 @@ function psit {
 	echo 'Please run the clipboard command with one of the allowed arguments and then try again';
 	return 1;
     elif [[ $operation == 'mv -i' ]] || [[ $operation == 'mv' ]]; then
-	moveItems='yes';
+	action='move';
     elif [[ $operation == 'cp -ir' ]] || [[ $operation == 'cp -r' ]]; then
-	moveItems='no';
+	action='copy';
     else
 	echo "Incorrect entry in the command file. Erasing file content";
 	echo 'Please run the clipboard command with one of the allowed arguments and the try again';
@@ -99,11 +99,7 @@ function psit {
     fi
     # ensure the source and destination directory are NOT the same
     if [[ "$sourceDir" == "$destDir" ]]; then
-	if [[ $moveItems == 'yes' ]]; then
-	    echo 'Cannot move. Source and destination directory are the same.'; 
-	else
-	    echo 'Cannot copy. Source and destination directory are the same.'; 
-	fi
+	echo "Cannot $action. Source and destination directory are the same";
 	return 1;
     fi 
     # if the paste command components are all correct, build the paste command and execute it from the source directory
@@ -111,7 +107,7 @@ function psit {
     cd "$sourceDir";
     eval "$command";
     # flush the command file if the paste operation was a move operation or the paste operation was not successful
-    if [[ $? != 0 ]] || [[ $moveItems == 'yes' ]]; then
+    if [[ $? != 0 ]] || [[ $action == 'move' ]]; then
 	> "$commandFile";
     fi
     # return to destination directory (from which the function was executed)
