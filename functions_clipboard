@@ -27,13 +27,13 @@ function clipboard {
     elif [[ '--move' == $1 ]]; then
 	if [[ -z $2 ]]; then
 	    operation='mv -i';
-	elif [[ "-o" == $1 ]]; then
+	elif [[ '-o' == $2 ]]; then
 	    operation='mv';
 	fi
     elif [[ '--copy' == $1 ]]; then
 	if [[ -z $2 ]]; then
 	    operation='cp -ir';
-	elif [[ "-o" == $1 ]]; then
+	elif [[ '-o' == $2 ]]; then
 	    operation='cp -r';
 	fi
     else
