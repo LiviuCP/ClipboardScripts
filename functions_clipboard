@@ -14,6 +14,7 @@ function clipboard {
     # second argument can only have value -o (override files automatically when pasting) or no value
     if [[ ! -z $2 ]] && [[ '-o' != $2 ]]; then
 	echo "Invalid second argument $2";
+	echo 'Please enter -o or no value';
 	> "$commandFile";
 	return 1;
     fi
@@ -58,7 +59,8 @@ function clipboard {
 function psit {
     # check that the file that contains the components of the paste command exists
     if [[ ! -f "$commandFile" ]]; then
-	echo "Fatal error! Parameters file $commandFile does not exist.";
+	echo "Parameters file $commandFile does not exist";
+	echo 'Please run the clipboard command with one of the allowed arguments';
 	return 1;
     fi 
     # read the command components and build the paste command
@@ -68,26 +70,30 @@ function psit {
     keyword=`sed -n '3p' $commandFile`;
     # decide on the type of "paste" operation (move/copy)
     if [[ -z $operation ]]; then
-	echo 'No move/copy command initiated. Clipboard empty.'; 
+	echo 'The clipboard is empty';
+	echo 'Please run the clipboard command with one of the allowed arguments and then try again';
 	return 1;
     elif [[ $operation == 'mv -i' ]] || [[ $operation == 'mv' ]]; then
 	moveItems='yes';
     elif [[ $operation == 'cp -ir' ]] || [[ $operation == 'cp -r' ]]; then
 	moveItems='no';
     else
-	echo "Incorrect entry in $commandFile, file will be flushed";
+	echo "Incorrect entry in the command file. Erasing file content";
+	echo 'Please run the clipboard command with one of the allowed arguments and the try again';
 	> "$commandFile";
 	return 1;
     fi
     # check that the source directory is valid
     if [[ ! -d "$sourceDir" ]]; then
 	echo "Invalid source directory $sourceDir";
+	echo 'It might have been deleted, renamed or moved';
 	> "$commandFile";
 	return 1;
     fi
     # check that the keyword used for determining the files to be moved/copied exists
     if [[ -z $keyword ]]; then
 	echo 'No keyword found';
+	echo 'Please run the clipboard command with one of the allowed arguments and then try again';
 	> "$commandFile";
 	return 1;
     fi
