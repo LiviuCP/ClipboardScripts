@@ -67,7 +67,7 @@ function paste {
     # check that the file that contains the components of the paste command exists
     if [[ ! -f "$commandFile" ]]; then
 	echo "Parameters file $commandFile does not exist";
-	echo 'Please run the clipboard function with one of the allowed arguments';
+	echo 'Please run the clipboard function (type clipboardHelp for more details)';
 	return 1;
     fi 
     # read the command components and build the paste command
@@ -78,7 +78,7 @@ function paste {
     # decide on the type of "paste" operation (move/copy)
     if [[ -z $operation ]]; then
 	echo 'The clipboard is empty';
-	echo 'Please run the clipboard function with one of the allowed arguments and then try again';
+	echo 'Please run the clipboard function (type clipboardHelp for more details) and then try again';
 	return 1;
     elif [[ $operation == 'mv -i' ]] || [[ $operation == 'mv' ]]; then
 	action='move';
@@ -87,7 +87,7 @@ function paste {
     else
 	> "$commandFile";
 	echo "Incorrect entry in the command file. Clipboard erased";
-	echo 'Please run the clipboard function with one of the allowed arguments and the try again';
+	echo 'Please run the clipboard function (type clipboardHelp for more details) and then try again';
 	return 1;
     fi
     # check that the source directory is valid
@@ -102,7 +102,7 @@ function paste {
     if [[ -z $keyword ]]; then
 	> "$commandFile";
 	echo 'No keyword found. Clipboard erased';
-	echo 'Please run the clipboard function with one of the allowed arguments and then try again';
+	echo 'Please run the clipboard function (type clipboardHelp for more details) and then try again';
 	return 1;
     fi
     # ensure the source and destination directory are NOT the same
@@ -125,7 +125,7 @@ function paste {
     if [[ $action == 'move' ]]; then
 	> "$commandFile";
 	echo 'Clipboard erased';
-	echo 'For a new operation please run the clipboard function with one of the allowed arguments';
+	echo 'For a new operation please run the clipboard function (type clipboardHelp for more details)';
     else
 	echo 'Clipboard NOT erased';
 	echo 'The copy operation can be repeated in the same or in a different directory';
@@ -148,4 +148,35 @@ function displayClipboard {
 	cat "$commandFile";
     fi
     return 0;
+}
+# this function provides help to the user regarding usage of the other functions
+function clipboardHelp {
+    echo;
+    echo 'Usage';
+    echo;
+    echo '1. Please run the clipboard function from the directory you wish to move or copy files from';
+    echo;
+    echo '   Enter as first argument:';
+    echo '   [--move]: if you would like to move files/folders to another directory';
+    echo '   [--copy]: if you would like to copy files/folders to another directory';
+    echo;
+    echo '   Enter as second argument:';
+    echo '   [no argument]: if you would like to be prompted when overriding existing files';
+    echo '   [-o]: if you would like to override exiting files without being prompted';
+    echo;
+    echo '2. Enter the required filename (use wildcards to select multiple files or dirs) and hit RETURN/ENTER';
+    echo;
+    echo '3. Go to the destination directory (using cd or a script) and run the paste function';
+    echo;
+    echo;
+    echo 'Final notes';
+    echo;
+    echo 'A. You can use the paste function multiple times if a copy operation has been initiated';
+    echo;
+    echo 'B. The source and destination directories must be different';
+    echo;
+    echo 'C. Following functions can also be used:';
+    echo '   emptyClipboard: to empty the file that contains the paste command (built by the clipboard function)';
+    echo '   displayClipboard: to display the paste command';
+    echo;
 }
