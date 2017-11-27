@@ -1,0 +1,97 @@
+Thank you for downloading this script.
+
+Please read this file prior to running it!
+
+=====================================================
+
+0. DISCLAIMER
+
+This script was created for home use. It's primarily intended for geeks (like me) that enjoy using the CLI.
+
+Do not use it on servers, business systems or other "critical" devices. It hasn't been tested thoroughly and there might still be some bugs.
+
+To conclude, use it at your own risk. I will not be held accountable for any damage or loss it might cause whatsoever. 
+
+1. INTRODUCTION
+
+This script file contains various functions used for moving and copying files/dirs from one directory (source) to another (destination). It emulates the cut-paste or copy-paste operations that are usually performed in the GUI.
+
+However there are some differences to the classic cut-copy-paste:
+- there is no physical movement of the files to a clipboard area. It's more like a "virtual clipboard", meaning that the script builds a "mv" or "cp" command which is executed once the paste function is called. The command does not contain the destination directory. This is added to the command right before it is executed and is the current directory from which the paste function is launched.
+- the command is persistent. If the user initiates the move/copy operation, the command (excluding destination directory) is stored into a file. It can be viewed at any time using displayClipboard. If the system is restarted the command is kept into the file until either the user deletes it (by running emptyClipboard) or it is deleted in another circumstance (e.g. when running paste after a move operation had been initiated).
+
+2. Supported systems
+
+The script has been written and tested on OS X Sierra (10.12), however it could also be run on Linux and even Windows (using Git BASH for example). I'm not aware of any command that would not function if BASH is used in the CLI. However I recommend a thorough testing is conducted (preferably on a virtual machine) prior to running it, no matter the OS that is used (even on Mac).
+
+3. Installation
+
+Copy the script in a chosen location. Then configure .bashrc or .bash_profile to load it automatically when opening a new terminal window by using the source command. Restart the terminal once ready and start using the functionality.
+
+4. Known issues/bugs
+
+None so far. However if any of them are discovered please feel free to comment on my Github page or write me an e-mail (liviucst@gmail.com).
+
+5. Functionality
+
+Following features are contained in the package:
+- a function used to initiate move or copy operation: clipboard
+- a function used to actually execute the move/copy operation: paste
+- a function used to display the command before executing it: displayClipboard
+- a function used to cancel the move or copy operation (erase the command): emptyClipboard
+- a helper function: clipboardHelp
+
+5.1. The clipboard functionality
+
+Use the clipboard function to initiate a move or copy operation:
+- for a move operation: enter option --move
+- for a copy operation: enter option --copy
+
+It is mandatory to enter one the 2 options as first argument.
+
+The second argument is optional. If nothing is entered, when running the paste function the user will be prompted to choose if files are overwritten or not (it's like running mv or cp with option -i). If option -o is entered than everything will be automatically overridden when running paste.
+
+Steps:
+- go to the directory from which files/directories need to be copied (source dir)
+- run the clipboard function
+- enter the keyword that represents the name of the file/directory to be moved or copied. By using wildcards you'll be able to mark multiple items for moving/copying.
+- hit ENTER. Now the command is stored into a file and will be executed once the user runs the paste function.
+
+Notes:
+- each time the clipboard function is successfully run the command is overwritten. 
+- I recommend that separate aliases are created for the move and copy operations
+- the source directory is the current folder from which the command is run. This can only be changed by running the command again.
+
+5.2. The paste functionality
+
+Once the clipboard command has been created (see section 5.1.) go to the directory where you want the items to be moved/copied (destination directory). Then write paste and hit enter.
+
+The source and destination directory should be different. However it is ok that one of them is a sub-directory or a parent directory of the other.
+
+You might be prompted to decide if files are to be overridden depending on the entry of the second argument -o when running the clipboard functionality (see 5.1.).
+
+Other notes:
+- if a copy operation has been performed the command will persist in the command file. The user can re-run the command in another destination directory. By contrast move is a one-time-only operation and the virtual clipboard will be erased.
+- if the keyword entered in previous step does not match to any files or directories nothing will be moved or copied. This also happens if the items marked by the keyword have been deleted, renamed or moved prior to running the paste function.
+- the user has the option of erasing the virtual clipboard by running the emptyClipboard function. It is also possible to display the move/copy command by running the displayClipboard function.
+
+5.3. The clipboard display
+
+Run displayClipboard to display the move or copy command. You will be able to see a cp or mv command with all options and arguments except the destination directory. The destination directory is automatically appended to the command prior to its execution when the paste function is launched.
+
+5.4. Cancelling the operation
+
+If the user wishes to cancel the move or copy operation this can be done by running the emptyClipboard function. This will empty the file containing the command. If running paste on an empty file an error message will be displayed that prompts the user to initiate the move or copy operation by running the clipboard function.
+
+It is also possible to replace the command with a new one by running the clipboard function with new arguments.
+
+5.5. Helper function
+
+Run clipboardHelp to display use instructions for the script package.
+
+6. Final notes
+
+It is also possible to use the move-copy-paste functions in combination with the goto functions that are contained into this repository: https://github.com/LiviuCP/gotoScripts. In fact this is the very action I recommend unless you have a better solution for navigating between dirs.
+
+However at the moment the usage of the m-c-p functions is not supported in the navigation mode of the goto script. To run them, you need to exit this mode, execute the functions and then return into navigation.
+
