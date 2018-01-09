@@ -29,15 +29,15 @@ function clipboard {
 	return 1;
     elif [[ '--move' == $1 ]]; then
 	if [[ -z $2 ]]; then
-	    operation='mv -i';
+	    operation='mv -iv';
 	elif [[ '-o' == $2 ]]; then
-	    operation='mv';
+	    operation='mv -v';
 	fi
     elif [[ '--copy' == $1 ]]; then
 	if [[ -z $2 ]]; then
-	    operation='cp -ir';
+	    operation='cp -irv';
 	elif [[ '-o' == $2 ]]; then
-	    operation='cp -r';
+	    operation='cp -rv';
 	fi
     else
 	echo "Invalid first argument $1, no such operation";
@@ -80,9 +80,9 @@ function paste {
 	echo 'The clipboard is empty';
 	echo 'Please run the clipboard function (type clipboardHelp for more details) and then try again';
 	return 1;
-    elif [[ $operation == 'mv -i' ]] || [[ $operation == 'mv' ]]; then
+    elif [[ $operation == 'mv -iv' ]] || [[ $operation == 'mv -v' ]]; then
 	action='move';
-    elif [[ $operation == 'cp -ir' ]] || [[ $operation == 'cp -r' ]]; then
+    elif [[ $operation == 'cp -irv' ]] || [[ $operation == 'cp -rv' ]]; then
 	action='copy';
     else
 	> "$commandFile";
