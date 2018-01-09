@@ -12,6 +12,8 @@ Do not use it on servers, business systems or other "critical" devices. It hasn'
 
 To conclude, use it at your own risk. I will not be held accountable for any damage or loss it might cause whatsoever. 
 
+Please let me know if you find any inconsistent information in this document so I can update it.
+
 1. INTRODUCTION
 
 This script file contains various functions used for moving and copying files/dirs from one directory (source) to another (destination). It emulates the cut-paste or copy-paste operations that are usually performed in the GUI.
@@ -74,6 +76,9 @@ Other notes:
 - if a copy operation has been performed the command will persist in the command file. The user can re-run the command in another destination directory. By contrast move is a one-time-only operation and the virtual clipboard will be erased.
 - if the keyword entered in previous step does not match to any files or directories nothing will be moved or copied. This also happens if the items marked by the keyword have been deleted, renamed or moved prior to running the paste function.
 - the user has the option of erasing the virtual clipboard by running the emptyClipboard function. It is also possible to display the move/copy command by running the displayClipboard function.
+- when the paste function is run from the destination folder, the current directory is temporarily changed to the source directory. From this folder the mv or cp command is executed. When copying and pasting files has finished the script will switch back to the destination directory. This "switching" behavior is clearly noticed when the terminal is synchronized with the explorer application (e.g. embedded terminal in Dolphin on OpenSUSE). It is not a bug but the way the script was designed. Although the behavior might be visually misleading, files and directories are actually correctly moved/copied from source directory to destination directory.
+- for the copy operation the output contains verbose functionality that displays individual files that are being copied. This happens even if the files are contained in a copied directory.
+- for the move operation the output also contains verbose functionality, however the files included by moved directories are not displayed
 
 5.3. The clipboard display
 
