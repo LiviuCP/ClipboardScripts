@@ -28,7 +28,7 @@ The script has been written and tested on OS X Sierra (10.12), however it could 
 
 3. Installation
 
-Copy the script in a chosen location. Then configure .bashrc or .bash_profile to load it automatically when opening a new terminal window by using the source command. Restart the terminal once ready and start using the functionality.
+Copy the script to a chosen location. If the folder differs from the home dir please setup variable $clipboardScriptDir accordingly (use an absolute path). Then configure .bashrc or .bash_profile to load the functions automatically (when opening a new terminal window) by using the source command. Restart the terminal once ready and start using the functionality.
 
 4. Known issues/bugs
 
