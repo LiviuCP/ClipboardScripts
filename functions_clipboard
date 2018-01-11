@@ -3,7 +3,7 @@
 #
 # GLOBAL VARIABLES
 #
-clipboardScriptDir=`pwd`;
+clipboardScriptDir=~;
 # file which is used by functions to build and execute the paste command
 # it also ensures the paste operations are persistent, they can also be performed if the system is rebooted
 commandFile=$clipboardScriptDir/.pasteCommand;
