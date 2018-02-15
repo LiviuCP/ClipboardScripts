@@ -46,7 +46,7 @@ function clipboard {
     #
     # Step 2: request (mandatory) keyword from user (keyword used to determine the files/directories to be moved/copied)
     echo 'Enter keyword: ';
-    read keyword;
+    read -e keyword;
     if [[ -z $keyword ]]; then
 	> "$commandFile";
 	echo 'No input. Clipboard erased';
