@@ -113,10 +113,13 @@ function paste {
     # if the paste command components are all correct, build the paste command and execute it from the source directory
     command="$operation $keyword \"$destDir\"";
     cd "$sourceDir";
+    echo "Started the $action operation";
+    echo;
     eval "$command";
     status=$?;
     # provide status of command execution and erase the content of the command file if required
     if [[ 0 -eq $status ]]; then
+	echo;
 	echo "Finished the $action operation";
     else
 	echo "The $action operation finished with errors or user chose to override only part of the content";
