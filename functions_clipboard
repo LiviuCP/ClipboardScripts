@@ -7,6 +7,11 @@ clipboardScriptDir=~;
 # file which is used by functions to build and execute the paste command
 # it also ensures the paste operations are persistent, they can also be performed if the system is rebooted
 commandFile=$clipboardScriptDir/.pasteCommand;
+# maximum number of files/dirs listed from current directory before user enters the keyword for move/copy
+maxNrOfItems=50;
+# temporary files used for various operations
+temp_file=$scriptDir/.temp;
+aux_temp_file=$scriptDir/.aux_temp;
 #
 # FUNCTIONS
 #
@@ -45,8 +50,27 @@ function clipboard {
     fi
     #
     # Step 2: request (mandatory) keyword from user (keyword used to determine the files/directories to be moved/copied)
+    ls -p | tee "$aux_temp_file" | head -"$maxNrOfItems" > "$temp_file";
+    tempOutput=`wc -l "$aux_temp_file"`;
+    nrOfItems=`echo $tempOutput | cut -f 1 -d ' '`;
+    rm "$aux_temp_file";
+    echo '1. Current directory:';
+    echo `pwd`;
+    echo;
+    echo '2. Items contained (hidden ones are excluded):';
+    echo;
+    column "$temp_file";
+    if [[ $nrOfItems -gt $maxNrOfItems ]]; then
+	echo;
+	echo 'Number of items contained by current directory exceeds the displayed ones!';
+    fi
+    rm "$temp_file";
+    echo;
+    echo "3. Clipboard operation: ${1:2}";
+    echo;
     echo 'Enter keyword: ';
     read -e keyword;
+    clear;
     if [[ -z $keyword ]]; then
 	> "$commandFile";
 	echo 'No input. Clipboard erased';
@@ -58,7 +82,8 @@ function clipboard {
     echo $operation > "$commandFile";
     echo `pwd` >> "$commandFile";
     echo "$keyword" >> "$commandFile";
-    echo 'The command has been successfully built';
+    echo "The ${1:2} command has been successfully built";
+    echo "Keyword: $keyword";
     echo 'Please choose the destination directory and run the paste function to execute it';
     return 0; 
 }
