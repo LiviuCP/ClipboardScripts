@@ -9,6 +9,7 @@ clipboardScriptDir=~;
 commandFile=$clipboardScriptDir/.pasteCommand;
 # maximum number of files/dirs listed from current directory before user enters the keyword for move/copy
 maxNrOfItems=50;
+maxNrOfChars=25; #maximum number of characters to be displayed for each item from current directory
 # temporary files used for various operations
 temp_file=$scriptDir/.temp;
 aux_temp_file=$scriptDir/.aux_temp;
@@ -17,6 +18,40 @@ aux_temp_file=$scriptDir/.aux_temp;
 #
 # This function creates the command for the move/copy operation
 function clipboard {
+    # helper function used for displaying the content of the current directory
+    function displaySourceDirContent {
+	# get number of items from current directory
+	ls | tee "$aux_temp_file" | head -"$maxNrOfItems" > "$temp_file";
+	tempOutput=`wc -l "$aux_temp_file"`;
+	nrOfItems=`echo $tempOutput | cut -f 1 -d ' '`;
+	> "$aux_temp_file";
+	# limit the number of characters displayed for each item so current directory content is correctly displayed
+	# (otherwise the content might be too much expanded)
+	while read currentEntry;
+	do
+	    if [[ ${#currentEntry} -gt $maxNrOfChars ]]; then
+		if [[ -d "$currentEntry" ]]; then
+		    echo "${currentEntry:0:$maxNrOfChars}../" >> "$aux_temp_file";
+		else
+		    echo "${currentEntry:0:$maxNrOfChars}..." >> "$aux_temp_file";
+		fi
+	    else
+		if [[ -d "$currentEntry" ]]; then
+		    echo "$currentEntry"'/' >> "$aux_temp_file";
+		else
+		    echo "$currentEntry" >> "$aux_temp_file";
+		fi
+	    fi
+	done < "$temp_file"
+	rm "$temp_file";
+	column "$aux_temp_file";
+	if [[ $nrOfItems -gt $maxNrOfItems ]]; then
+	    echo;
+	    echo 'Number of items contained by current directory exceeds the displayed ones!';
+	fi
+	rm "$aux_temp_file";
+    }
+    #
     # Step 1: check arguments, decide the which operation will be performed (move/copy/override/interactive)
     #
     # second argument can only have value -o (override files automatically when pasting) or no value
@@ -25,12 +60,14 @@ function clipboard {
 	echo "Invalid second argument: $2";
 	echo 'Clipboard erased';
 	echo 'Please enter -o or no value';
+	unset -f displaySourceDirContent;
 	return 1;
     fi
     # first argument specifies the operation type (move/copy), no other value allowed
     if [[ -z $1 ]]; then
 	echo 'No argument entered to specify the requested operation (move/copy)';
 	echo 'Valid arguments: [--move] [--copy]';
+	unset -f displaySourceDirContent;
 	return 1;
     elif [[ '--move' == $1 ]]; then
 	if [[ -z $2 ]]; then
@@ -46,25 +83,17 @@ function clipboard {
 	fi
     else
 	echo "Invalid first argument $1, no such operation";
+	unset -f displaySourceDirContent;
 	return 1;
     fi
     #
     # Step 2: request (mandatory) keyword from user (keyword used to determine the files/directories to be moved/copied)
-    ls -p | tee "$aux_temp_file" | head -"$maxNrOfItems" > "$temp_file";
-    tempOutput=`wc -l "$aux_temp_file"`;
-    nrOfItems=`echo $tempOutput | cut -f 1 -d ' '`;
-    rm "$aux_temp_file";
     echo '1. Current directory:';
     echo `pwd`;
     echo;
     echo '2. Items contained (hidden ones are excluded):';
     echo;
-    column "$temp_file";
-    if [[ $nrOfItems -gt $maxNrOfItems ]]; then
-	echo;
-	echo 'Number of items contained by current directory exceeds the displayed ones!';
-    fi
-    rm "$temp_file";
+    displaySourceDirContent;
     echo;
     echo "3. Clipboard operation: ${1:2}";
     echo;
@@ -75,6 +104,7 @@ function clipboard {
 	> "$commandFile";
 	echo 'No input. Clipboard erased';
 	echo 'Please try again';
+	unset -f displaySourceDirContent;
 	return 1;
     fi
     #
@@ -85,6 +115,7 @@ function clipboard {
     echo "The ${1:2} command has been successfully built";
     echo "Keyword: $keyword";
     echo 'Please choose the destination directory and run the paste function to execute it';
+    unset -f displaySourceDirContent;
     return 0; 
 }
 # This function emulates a 'PASTE' operation
@@ -213,3 +244,5 @@ function clipboardHelp {
     echo '   displayClipboard: to display the paste command';
     echo;
 }
+
+unset -f displaySourceDirContent;
