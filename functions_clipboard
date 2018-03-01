@@ -48,6 +48,7 @@ function clipboard {
 	if [[ $nrOfItems -gt $maxNrOfItems ]]; then
 	    echo;
 	    echo 'Number of items contained by current directory exceeds the displayed ones!';
+	    echo 'Type :l or :ll and hit ENTER to see the complete list (press q to exit the list)';
 	fi
 	rm "$aux_temp_file";
     }
@@ -88,25 +89,33 @@ function clipboard {
     fi
     #
     # Step 2: request (mandatory) keyword from user (keyword used to determine the files/directories to be moved/copied)
-    echo '1. Current directory:';
-    echo `pwd`;
-    echo;
-    echo '2. Items contained (hidden ones are excluded):';
-    echo;
-    displaySourceDirContent;
-    echo;
-    echo "3. Clipboard operation: ${1:2}";
-    echo;
-    echo 'Enter keyword: ';
-    read -e keyword;
-    clear;
-    if [[ -z $keyword ]]; then
-	> "$commandFile";
-	echo 'No input. Clipboard erased';
-	echo 'Please try again';
-	unset -f displaySourceDirContent;
-	return 1;
-    fi
+    while [[ '1' == '1' ]]; do
+	echo '1. Current directory:';
+	echo `pwd`;
+	echo;
+	echo '2. Items contained (hidden ones are excluded):';
+	echo;
+	displaySourceDirContent;
+	echo;
+	echo "3. Clipboard operation: ${1:2}";
+	echo;
+	echo 'Enter keyword: ';
+	read -e keyword;
+	clear;
+	if [[ -z $keyword ]]; then
+	    > "$commandFile";
+	    echo 'No input. Clipboard erased';
+	    echo 'Please try again';
+	    unset -f displaySourceDirContent;
+	    return 1;
+	elif [[ $keyword == ':l' ]]; then
+	    ls -p | column | less;
+	elif [[ $keyword == ':ll' ]]; then
+	    ls -lh | less;
+	else
+	    break;
+	fi
+    done
     #
     # Step 3: build the paste command that will actually move the required files to the chosen directory (when the paste function is called)
     echo $operation > "$commandFile";
