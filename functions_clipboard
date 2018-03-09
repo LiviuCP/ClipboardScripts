@@ -105,6 +105,13 @@ function clipboard {
 	echo;
 	echo "3. Clipboard operation: ${1:2}";
 	echo;
+	echo -n '4. Interactive (ask before overridding files): ';
+	if [[ false == $overrideFiles ]]; then
+	    echo 'yes';
+	else
+	    echo 'no';
+	fi
+	echo;
 	echo 'Enter keyword: ';
 	read -e keyword;
 	clear;
