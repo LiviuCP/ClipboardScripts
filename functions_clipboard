@@ -13,6 +13,8 @@ aux_temp_file=$scriptDir/.aux_temp;
 # maximum number of files/dirs listed from current directory before user enters the keyword for move/copy
 maxNrOfItems=50;
 maxNrOfChars=25; #maximum number of characters to be displayed for each item from current directory
+# determines if files are overridden without asking the user
+overrideFiles=false;
 #
 # FUNCTIONS
 #
@@ -63,6 +65,10 @@ function clipboard {
 	echo 'Please enter -o or no value';
 	unset -f displaySourceDirContent;
 	return 1;
+    elif [[ -z $2 ]]; then
+	overrideFiles=false;
+    else
+	overrideFiles=true;
     fi
     # first argument specifies the operation type (move/copy), no other value allowed
     if [[ -z $1 ]]; then
@@ -71,15 +77,15 @@ function clipboard {
 	unset -f displaySourceDirContent;
 	return 1;
     elif [[ '--move' == $1 ]]; then
-	if [[ -z $2 ]]; then
+	if [[ false == $overrideFiles ]]; then
 	    operation='mv -iv';
-	elif [[ '-o' == $2 ]]; then
+	else
 	    operation='mv -v';
 	fi
     elif [[ '--copy' == $1 ]]; then
-	if [[ -z $2 ]]; then
+	if [[ false == $overrideFiles ]]; then
 	    operation='cp -irv';
-	elif [[ '-o' == $2 ]]; then
+	else
 	    operation='cp -rv';
 	fi
     else
