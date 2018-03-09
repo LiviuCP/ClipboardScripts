@@ -7,12 +7,12 @@ clipboardScriptDir=~;
 # file which is used by functions to build and execute the paste command
 # it also ensures the paste operations are persistent, they can also be performed if the system is rebooted
 commandFile=$clipboardScriptDir/.pasteCommand;
-# maximum number of files/dirs listed from current directory before user enters the keyword for move/copy
-maxNrOfItems=50;
-maxNrOfChars=25; #maximum number of characters to be displayed for each item from current directory
 # temporary files used for various operations
 temp_file=$scriptDir/.temp;
 aux_temp_file=$scriptDir/.aux_temp;
+# maximum number of files/dirs listed from current directory before user enters the keyword for move/copy
+maxNrOfItems=50;
+maxNrOfChars=25; #maximum number of characters to be displayed for each item from current directory
 #
 # FUNCTIONS
 #
