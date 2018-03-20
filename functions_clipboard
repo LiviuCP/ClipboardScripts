@@ -226,12 +226,24 @@ function displayClipboard {
     if [[ ! -s "$commandFile" ]]; then
 	echo 'The clipboard is empty!';
     else
-	firstLine=`sed '1q;d' "$commandFile"`;
-	secondLine=`sed '2q;d' "$commandFile"`;
-	thirdLine=`sed '3q;d' "$commandFile"`;
-	echo 'The paste command is:';
-	echo "$firstLine $secondLine/$thirdLine [destination directory]";
-        echo 'The user should cd to the chosen destination directory before running the paste function';
+	currentDir=`pwd`;
+	pasteCommand=`sed '1q;d' "$commandFile"`;
+	sourceDir=`sed '2q;d' "$commandFile"`;
+	keyword=`sed '3q;d' "$commandFile"`;
+	echo "Current directory: $currentDir";
+	echo "Source directory: $sourceDir";
+	echo;
+	if [[ "$currentDir" == "$sourceDir" ]]; then
+	    echo 'The current directory is the same with the source directory. Cannot paste';
+	    echo 'Please choose another destination directory'
+	else
+	    echo "Keyword: $keyword";
+	    echo;
+	    echo 'For the current directory the paste command is:';
+	    echo "$pasteCommand $sourceDir/$keyword $currentDir";
+	    echo;
+	    echo 'If the command is ok type paste to execute it';
+	fi
     fi
     return 0;
 }
