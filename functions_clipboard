@@ -4,6 +4,7 @@
 # GLOBAL VARIABLES
 #
 clipboardScriptDir=~;
+targetDir='';
 # file which is used by functions to build and execute the paste command
 # it also ensures the paste operations are persistent, they can also be performed if the system is rebooted
 commandFile=$clipboardScriptDir/.pasteCommand;
@@ -273,4 +274,34 @@ function clipboardHelp {
     echo '   emptyClipboard: to empty the file that contains the paste command (built by the clipboard function)';
     echo '   displayClipboard: to display the paste command';
     echo;
+}
+# this function is used for setting up a target directory in which multiple items can be moved or copied in successive operations
+function setTargetDir {
+    if [[ ! -z "$1" ]]; then
+	if [[ '--reset' == "$1" ]]; then
+	    targetDir='';
+	    echo 'Target directory has been reset.';
+	    return 0;
+	elif [[ ! -d "$1" ]]; then
+	    echo "Directory $1 does not exist or has been deleted.";
+	    echo 'Cannot set as target directory.';
+	    return 1;
+	else
+	    cd "$1";
+	    targetDir=`pwd`;
+	    cd - > /dev/null;
+	fi
+    else
+	targetDir=`pwd`;
+    fi
+    echo 'New target directory for moving or copying files:';
+    echo "$targetDir";
+}
+# this function retrieves the absolute path of the target directory
+function displayTargetDir {
+    if [[ -z "$targetDir" ]]; then
+	echo 'No target directory has been setup.'
+    else
+	echo "The target directory is: $targetDir";
+    fi
 }
