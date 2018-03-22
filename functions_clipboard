@@ -305,3 +305,37 @@ function displayTargetDir {
 	echo "The target directory is: $targetDir";
     fi
 }
+# this function moves or copies to a destination that has previously been setup
+function transferToKnownDir {
+    # ensure the input is valid
+    isValidInput=false;
+    if [[ -z "$targetDir" ]]; then
+	echo 'No target directory has been setup!';
+    elif [[ ! -d "$targetDir" ]]; then
+	echo "Invalid directory: $targetDir";
+	echo 'The directory might have been moved or deleted';
+    elif [[ -z $1 ]]; then
+	echo 'No arguments have been entered!';
+    elif [[ '--move' != $1 ]] && [[ '--copy' != $1 ]]; then
+	echo 'Invalid argument!';
+    else
+	isValidInput=true;
+    fi
+    #
+    if [[ false == $isValidInput ]]; then
+	return 1;
+    fi
+    # build the command, transfer (move/copy) the items to user directory based on user given keyword
+    if [[ '--move' == $1 ]]; then
+	transferOperation='mv -iv';
+    else
+	transferOperation='cp -irv';
+    fi
+    #
+    clear;
+    echo 'Enter the required keyword:';
+    read -e keyword;
+    transferCommand="$transferOperation $keyword \"$targetDir\"";
+    eval "$transferCommand";
+    return 0;
+}
