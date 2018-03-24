@@ -356,7 +356,7 @@ function transferToKnownDir {
 	    echo $keyword;
 	fi
 	echo;
-	echo -n 'Enter the required keyword (press ENTER to quit): ';
+	echo 'Enter the required keyword (press ENTER to quit): ';
 	read -e keyword;
 	if [[ -z $keyword ]]; then
 	    clear;
