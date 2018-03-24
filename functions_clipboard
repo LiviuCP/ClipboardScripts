@@ -333,9 +333,16 @@ function transferToKnownDir {
     fi
     #
     clear;
-    echo 'Enter the required keyword:';
-    read -e keyword;
-    transferCommand="$transferOperation $keyword \"$targetDir\"";
-    eval "$transferCommand";
+    while [[ '1' == '1' ]]; do
+	echo 'Enter the required keyword (press ENTER to quit):';
+	read -e keyword;
+	if [[ -z $keyword ]]; then
+	    echo 'Aborted';
+	    break;
+	fi
+	transferCommand="$transferOperation $keyword \"$targetDir\"";
+	clear;
+	eval "$transferCommand";
+    done
     return 0;
 }
