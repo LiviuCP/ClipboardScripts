@@ -333,10 +333,33 @@ function transferToKnownDir {
     fi
     #
     clear;
+    echo "Please transfer the selected files to the setup target directory";
+    echo "Successive operations are allowed";
     while [[ '1' == '1' ]]; do
-	echo 'Enter the required keyword (press ENTER to quit):';
+	echo;
+	echo '1. Current directory:';
+	echo `pwd`;
+	echo;
+	echo '2. Items contained (hidden ones are excluded):';
+	echo;
+	displaySourceDirContent;
+	echo;
+	echo "3. Transfer operation: ${1:2}";
+	echo;
+	echo '4. Destination directory:';
+	echo "$targetDir";
+	echo;
+	echo -n '5. Previously used keyword: ';
+	if [[ -z $keyword ]]; then
+	    echo 'none';
+	else
+	    echo $keyword;
+	fi
+	echo;
+	echo -n 'Enter the required keyword (press ENTER to quit): ';
 	read -e keyword;
 	if [[ -z $keyword ]]; then
+	    clear;
 	    echo 'Aborted';
 	    break;
 	fi
