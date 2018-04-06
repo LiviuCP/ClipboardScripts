@@ -303,6 +303,9 @@ function displayTargetDir {
 	echo 'No target directory has been setup.'
     else
 	echo "The target directory is: $targetDir";
+	if [[ "$targetDir" == `pwd` ]]; then
+	    echo 'The source and target dir are identical! Please change either of them before transfering items.';
+	fi
     fi
 }
 # this function moves or copies to a destination that has previously been setup
@@ -318,6 +321,11 @@ function transferToKnownDir {
 	echo 'No arguments have been entered!';
     elif [[ '--move' != $1 ]] && [[ '--copy' != $1 ]]; then
 	echo 'Invalid argument!';
+    elif [[ "$targetDir" == `pwd` ]]; then
+	echo 'The source and target dir are identical! Please change either of them and try again.';
+	echo;
+	echo 'Current target dir:';
+	echo "$targetDir";
     else
 	isValidInput=true;
     fi
