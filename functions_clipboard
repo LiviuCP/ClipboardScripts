@@ -362,7 +362,7 @@ function transferToKnownDir {
 	if [[ -z $keyword ]]; then
 	    echo 'none';
 	else
-	    echo $keyword;
+	    echo "$keyword";
 	fi
 	echo;
 	echo 'Enter the required keyword (press ENTER to quit): ';
